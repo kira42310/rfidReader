@@ -107,6 +107,12 @@ class mysqlConnecter:
         self.insertItem( sql )
         return 1
 
+    def updatePallet( self, palletID ):
+        sql = ( "UPDATE pallet SET state = 'out' "
+        "WHERE pallet.id = " + palletID )
+        self.insertItem( sql )
+        return 1
+
     # function to create sql and get lot warehouse data from database by call getItem function
     def getLotWarehouse( self ):
         sql = "SELECT * FROM lot_warehouse "
@@ -207,14 +213,16 @@ class rfidUI( wx.Frame ):
         labelTagLotW = wx.StaticText( panel, label = 'Lot warehouse', size = self.labelBoxSize )
         # textTagRow = wx.TextCtrl( panel, value = self.tagRow, style = wx.TE_READONLY | wx.TE_CENTER, size = self.txtBoxSize )
         # tagRowLine.Add( textTagRow, 0, wx.ALL | wx.CENTER, self.uMargin )
-        lotWList = [ str( lot['id'] ) for lot in self.mysql.getLotWarehouse() ]
-        self.lotWCombo = wx.ComboBox( panel, choices = lotWList, value = lotWList[0], size = self.txtBoxSize )
+        self.lotWList = self.mysql.getLotWarehouse()
+        lotWCList = [ str( lot['id'] )+','+lot['name'] for lot in self.lotWList ]
+        self.lotWCombo = wx.ComboBox( panel, choices = lotWCList, value = lotWCList[0], size = self.txtBoxSize )
         tagLotWLine.Add( labelTagLotW, 0, wx.ALL | wx.CENTER, self.uMargin )
         tagLotWLine.Add( self.lotWCombo, 0, wx.ALL, self.uMargin )
         tagLotPLine = wx.BoxSizer( wx.HORIZONTAL )
         labelTagLotP = wx.StaticText( panel, label = 'Lot product', size = self.labelBoxSize )
-        lotPList = [ str( lot['id'] ) for lot in self.mysql.getLotProduct() ]
-        self.lotPCombo = wx.ComboBox( panel, choices = lotPList, value = lotPList[0], size = self.txtBoxSize )
+        self.lotPList = self.mysql.getLotProduct()
+        lotPCList = [ str( lot['id'] ) + ',' + lot['name'] for lot in self.lotPList ]
+        self.lotPCombo = wx.ComboBox( panel, choices = lotPCList, value = lotPCList[0], size = self.txtBoxSize )
         tagLotPLine.Add( labelTagLotP, 0, wx.ALL | wx.CENTER, self.uMargin )
         tagLotPLine.Add( self.lotPCombo, 0, wx.ALL, self.uMargin )
         tagCartLine = wx.BoxSizer( wx.HORIZONTAL )
@@ -235,13 +243,13 @@ class rfidUI( wx.Frame ):
         tagInfoBox.Add( pdQuantityLine, 0, wx.ALL )
 
         # buttons section UI
-        btnGetTagID = wx.Button( panel, label = 'Get Tag ID' )
+        # btnGetTagID = wx.Button( panel, label = 'Get Tag ID' )
         btnAddtoDB = wx.Button( panel, label = 'Add' )
         btnDelfromDB = wx.Button( panel, label = 'Delete' )
-        btnBox.Add( btnGetTagID, 0, wx.ALL, self.uMargin )
+        # btnBox.Add( btnGetTagID, 0, wx.ALL, self.uMargin )
         btnBox.Add( btnAddtoDB, 0, wx.ALL, self.uMargin )
         btnBox.Add( btnDelfromDB, 0, wx.ALL, self.uMargin )
-        btnGetTagID.Bind( wx.EVT_BUTTON, self.onGetTagID )
+        # btnGetTagID.Bind( wx.EVT_BUTTON, self.onGetTagID )
         btnAddtoDB.Bind( wx.EVT_BUTTON, self.onAddToDB )
 
         # # test database button
